@@ -1,0 +1,62 @@
+app wasptutorial {
+  wasp: {
+    version: "^0.13.1"
+  },
+  title: "wasptutorial",
+  auth: {
+    userEntity: User,
+    methods: {
+      // Enable username and password auth.
+      usernameAndPassword: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+  db: {
+    system: PostgreSQL,
+  }
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+   authRequired: true,
+  component: import { MainPage } from "@src/MainPage"
+}
+
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import { SignupPage } from "@src/SignupPage"
+}
+
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { LoginPage } from "@src/LoginPage"
+}
+
+entity User {=psl
+    id       Int    @id @default(autoincrement())
+    notes    Note[]
+psl=}
+
+entity Note {=psl
+    id          Int     @id @default(autoincrement())
+    title       String
+    description String
+    user        User?   @relation(fields: [userId], references: [id])
+    userId      Int?
+psl=}
+
+query getNotes {
+  fn: import { getNotes } from "@src/queries",
+  entities: [Note]
+}
+
+action createNote {
+  fn: import { createNote } from "@src/actions",
+  entities: [Note]
+}
+
+action deleteNote {
+  fn: import { deleteNote } from "@src/actions",
+  entities: [Note]
+}
+
